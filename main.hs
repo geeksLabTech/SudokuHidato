@@ -22,7 +22,7 @@ data Node = Node {
 getPrefixedNodes :: Board -> [Node]
 getPrefixedNodes Empty = []
 getPrefixedNodes (Board cells _ _) = filter isPrefixed cells where
-    isPrefixed x = value x >= 0
+    isPrefixed x = value x > 0
 
 
 sortPrefixedNodes :: Board -> [Node]
@@ -57,8 +57,8 @@ getPositionsOfAdjacentZeroNodes :: Node -> [Node] -> [(Int, Int)]
 getPositionsOfAdjacentZeroNodes node zeroNodes = filter isNodeZero [(x, y) | x <- dx, y <- dy] where
     isNodeZero (x, y) = (x, y) `elem` map position zeroNodes
     (x, y) = position node
-    dx = [x, x, x+1, x+1, x+1, x-1, x-1, x-1]
-    dy = [y+1, y-1, y, y+1, y-1, y+1, y, y-1]
+    dx = [x,   x,  x+1, x+1, x+1, x-1, x-1, x-1]
+    dy = [y+1, y-1, y,  y+1, y-1, y+1,  y,  y-1]
 
 
 solve :: Board -> [Node]
