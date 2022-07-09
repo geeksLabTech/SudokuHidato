@@ -1,9 +1,9 @@
 module Main where
 import Data.List (sortBy, sort, unfoldr)
+import Data.Set (Set)
+import qualified Data.Set as Set
 import System.Random
 import Control.Monad
-import Text.ParserCombinators.ReadP (count)
-import Control.Arrow (ArrowChoice(right))
 
 main :: IO ()
 main = putStrLn "Hello, Haskell!"
@@ -139,12 +139,28 @@ fillRecursive board start (x,y) last
                 (newX, newY) = (x + getElement dx index, y + getElement dy index )
                 solution = fillRecursive newBoard newStart (newX, newY) last
 
-findFinalResult 
-
 connected :: [Node] -> Int -> Int -> Int
 connected board x y 
     | nodeIndexer (x, y) board /= 0 = 0
-    | otherwise findFinalRes (Set.fromList[(x,y)])
+    | otherwise = findFinalResult (Set.fromList[(x,y)])
+    where
+        findFinalResult :: Set (Int, Int) -> Int
+        findFinalResult zeros 
+            | zeros == nZeros = Set.size nZeros
+            | otherwise = findFinalResult nZeros
+            where
+                nZeros = neighbors zeros
+                neighbors :: Set (Int, Int) -> Set (Int, Int)
+                neighbors zeros
+                    | Set.size zeros == 0 = Set.empty
+                    | otherwise = Set.union nZeros (neighbors popZeros)
+                    where
+                        dx = [0, 0, 0,  1, 1,  1, -1, -1, -1]
+                        dy = [0, 1, -1, 0, 1, -1,  1,  0, -1]
+                        (x, y) = Set.findMin zeros
+                        popZeros = Set.deleteMin zeros
+                        nZeros = Set.fromList [(x+getElement dx i,y+ getElement dy i) | i <- [0..(length dx)-1], inRange (x+getElement dx i, y+getElement dy i) board, value (nodeIndexer ((x+getElement dx i), (y+getElement dy i)) board) == 0]
+
 
 canDisconnect :: [Node] -> Int -> Int -> Bool
 canDisconnect board x y
@@ -199,7 +215,7 @@ randomList n = take n . unfoldr (Just . random)
 
 generateBoard :: Int -> Int -> Board
 generateBoard a b = do
-    seed <- newStdGen
+    nSeed <- newStdGen
     shape <- randomRIO(0,1)
 
     let boards = [squareBoard a b]
@@ -216,8 +232,8 @@ generateBoard a b = do
     let filledList = generateCoordinates(cells board) (maxNum board) 2
     let n = length filledList
 
-    -- let list = map(`mod` n) randomList(n,seed)
-    let list = map(\x -> (mod x n)) (randomList n seed)
+    -- let list = map(`mod` n) randomList(n,nSeed)
+    let list = map(\x -> (mod x n)) (randomList n nSeed)
     let deleteList = sort (zip list filledList)
 
     let generatedBoard = removeNum board deleteList (round ( (maxNum board)/2))
