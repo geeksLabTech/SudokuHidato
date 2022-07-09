@@ -1,10 +1,6 @@
-module Main where
 import Data.List (sortBy, sort)
 import Control.Monad
 
-
-main :: IO ()
-main = putStrLn "Hello, Haskell!"
 
 data Board = Board {
     cells :: [Node],
@@ -48,17 +44,22 @@ removeNodeByPosition [] _ = []
 removeNodeByPosition nodes pos = filter (\x -> position x /= pos) nodes
    
 
-
 isSolved :: [(Int, Int)] -> [Int] -> Bool
 isSolved numbersPutInBoard missingValues = length numbersPutInBoard == length missingValues 
 
 
+-- getPositionsOfAdjacentZeroNodes :: Node -> [Node] -> [(Int, Int)]
+-- getPositionsOfAdjacentZeroNodes node zeroNodes = filter isNodeZero [(x, y) | x <- dx, y <- dy] where
+--     isNodeZero (x, y) = (x, y) `elem` map position zeroNodes
+--     (x, y) = position node
+--     dx = [x,   x,  x+1, x+1, x+1, x-1, x-1, x-1]
+--     dy = [y+1, y-1, y,  y+1, y-1, y+1,  y,  y-1]
+
 getPositionsOfAdjacentZeroNodes :: Node -> [Node] -> [(Int, Int)]
-getPositionsOfAdjacentZeroNodes node zeroNodes = filter isNodeZero [(x, y) | x <- dx, y <- dy] where
+getPositionsOfAdjacentZeroNodes node zeroNodes = filter isNodeZero $ map (\(x,y) -> (x + fst coordinate, y + snd coordinate)) directions where 
     isNodeZero (x, y) = (x, y) `elem` map position zeroNodes
-    (x, y) = position node
-    dx = [x,   x,  x+1, x+1, x+1, x-1, x-1, x-1]
-    dy = [y+1, y-1, y,  y+1, y-1, y+1,  y,  y-1]
+    coordinate = position node
+    directions = [(1,0), (0,1), (1,1), (1,-1), (-1,1), (-1,0), (0,-1), (-1,-1)]
 
 
 solve :: Board -> [Node]
