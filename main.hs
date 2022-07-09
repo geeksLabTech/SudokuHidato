@@ -62,20 +62,36 @@ getPositionsOfAdjacentZeroNodes node zeroNodes = filter isNodeZero $ map (\(x,y)
     directions = [(1,0), (0,1), (1,1), (1,-1), (-1,1), (-1,0), (0,-1), (-1,-1)]
 
 
-solve :: Board -> [Node]
-solve board = backtrack (head $ sortPrefixedNodes board) [] missingValues (length missingValues) (getZeroNodes board) where
+solve :: Board -> Board
+solve board = backtrack board numbersPutInBoard [] missingValues (length missingValues) (getZeroNodes board) where
+    numbersPutInBoard = head $ sortPrefixedNodes board
     missingValues = calculateMissingValues board
 
 
-backtrack :: Node -> [Node] -> [Int] -> Int -> [Node] -> [Node]
-backtrack node numbersPutInBoard missingValues totalMissingValues zeroNodes = do
-    posiblePosition <- getPositionsOfAdjacentZeroNodes node zeroNodes
-    guard $ null posiblePosition
-    if length numbersPutInBoard == totalMissingValues then
-        return node
-    else do
-        let newNode = Node (head missingValues) posiblePosition
-        backtrack newNode (numbersPutInBoard ++ [newNode]) (tail missingValues) totalMissingValues (removeNodeByPosition zeroNodes posiblePosition)
+-- backtrack :: Node -> [Node] -> [Int] -> Int -> [Node] -> [Node]
+-- backtrack node numbersPutInBoard missingValues totalMissingValues zeroNodes = do
+--     posiblePosition <- getPositionsOfAdjacentZeroNodes node zeroNodes
+--     if length numbersPutInBoard == totalMissingValues then
+--         return node
+--     guard $ null posiblePosition
+--     let newNode = Node (head missingValues) posiblePosition
+--     backtrack newNode (numbersPutInBoard ++ [newNode]) (tail missingValues) totalMissingValues (removeNodeByPosition zeroNodes posiblePosition)
+
+
+backtrack :: Board -> Node -> [Node] -> [Int] -> Int -> [Node] -> Board
+backtrack board node numbersPutInBoard missingValues totalMissingValues zeroNodes
+    | length numbersPutInBoard == totalMissingValues = Board numbersPutInBoard (minNum board) (maxNum board)
+    | otherwise = maybeBoard 
+        where 
+        positions = getPositionsOfAdjacentZeroNodes node zeroNodes
+        maybeBoard = recursiveCall positions 
+        recursiveCall positionsToCheck 
+            | null positionsToCheck = Empty 
+            | solution /= Empty = solution
+            | otherwise = recursiveCall $ tail positionsToCheck 
+            where 
+            newNode = Node (head missingValues) (head positionsToCheck)
+            solution = backtrack board newNode (numbersPutInBoard ++ [newNode]) (tail missingValues) totalMissingValues (removeNodeByPosition zeroNodes $ head positionsToCheck)
 
 
 sample = Board  
