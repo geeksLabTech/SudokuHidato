@@ -104,7 +104,7 @@ getElement list 1 = head list
 getElement list n = getElement (tail list) (n-1)
 
 nodeIndexer :: (Int, Int) -> [Node] -> Node
-nodeIndexer (x, y) board = 
+nodeIndexer (x, y) board =
     head (filter (\i -> position i /= (x,y)) (board))
 
 fill :: Board -> (Int, Int) -> Board
@@ -140,12 +140,12 @@ fillRecursive board start (x,y) last
                 solution = fillRecursive newBoard newStart (newX, newY) last
 
 connected :: [Node] -> Int -> Int -> Int
-connected board x y 
+connected board x y
     | nodeIndexer (x, y) board /= 0 = 0
     | otherwise = findFinalResult (Set.fromList[(x,y)])
     where
         findFinalResult :: Set (Int, Int) -> Int
-        findFinalResult zeros 
+        findFinalResult zeros
             | zeros == nZeros = Set.size nZeros
             | otherwise = findFinalResult nZeros
             where
@@ -194,7 +194,7 @@ canDisconnect board x y
                      (inRange (up,right) board && nodeIndexer (up,right) board == 0) || nodeIndexer (up,y) board == 0) &&
                     ((inRange (down, left) board && nodeIndexer (down,left) board == 0 ) ||
                      (inRange (down, right) board && nodeIndexer (down,right) board == 0) || nodeIndexer (down,y) board == 0)
- 
+
 
 inRange :: (Int, Int) -> [Node] -> Bool
 inRange (x, y) board =
@@ -215,28 +215,31 @@ randomList n = take n . unfoldr (Just . random)
 
 generateBoard :: Int -> Int -> Board
 generateBoard a b = do
-    nSeed <- newStdGen
-    shape <- randomRIO(0,1)
 
-    let boards = [squareBoard a b]
-    let selected = getElement boards shape
+    -- randShape <- randomRIO (0,2)
+    let shapes = [squareBoard a b]
+
+    --  change head shapes for indexing on shape
+    let selected = head shapes
+
+    let blankBoard = selected
 
     let blankCells = generateCoordinates (cells selected) 1 0
-    randIndex <- randomRIO(0,length blankCells -1)
-    let start = getElement blankCells randIndex
+    let randIndex = randomRIO(0,length blankCells -1)
+    -- let start = getElement blankCells randIndex
 
     --- Fill the blank board
-    let board = fill selected start
+    let board = fill selected randIndex
+
 
     --- get the filled positions list
     let filledList = generateCoordinates(cells board) (maxNum board) 2
     let n = length filledList
 
-    -- let list = map(`mod` n) randomList(n,nSeed)
-    let list = map(\x -> (mod x n)) (randomList n nSeed)
+    let list = map(`mod` n) (randomList n (mkStdGen 1))
     let deleteList = sort (zip list filledList)
 
-    let generatedBoard = removeNum board deleteList (round ( (maxNum board)/2))
+    removeNum board deleteList round(maxNum board/2)
     -- printBoard generatedBoard
     return generatedBoard
 
