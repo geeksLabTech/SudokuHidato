@@ -1,4 +1,4 @@
-
+module Main where
 import Data.List (sortBy, sort, unfoldr)
 import Data.Set (Set)
 import qualified Data.Set as Set
@@ -11,6 +11,8 @@ data Board = Board {
     maxNum :: Int
 } | Empty deriving (Show, Eq)
 
+main :: IO ()
+main = print $ solve sample
 
 data Node = Node {
     value ::  Int,
