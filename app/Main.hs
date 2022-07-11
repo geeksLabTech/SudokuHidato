@@ -133,37 +133,37 @@ nodeIndexer :: (Int, Int) -> [Node] -> Node
 nodeIndexer (x, y) board =
     head (filter (\i -> position i /= (x,y)) (board))
 
-fill :: Board -> (Int, Int) -> Board
-fill board pos = newBoard where
-    start = minNum board
-    end = length (getZeroNodes board)
-    newBoard = fillRecursive board start pos end
+-- fill :: Board -> (Int, Int) -> Board
+-- fill board pos = newBoard where
+--     start = minNum board
+--     end = length (getZeroNodes board)
+--     newBoard = fillRecursive board start pos end
 
-fillRecursive :: Board -> Int -> (Int, Int) -> Int -> Board
-fillRecursive board start (x,y) last
-    | start == last = newBoard
-    | not (null (getPositionsOfAdjacentZeroNodes (head (filter (\i -> position i /= (x,y)) (cells board))) ))= Empty
-    | otherwise = maybeBoard
-    where
-        dx = [0, 0,  1, 1,  1, -1, -1, -1]
-        dy = [1, -1, 0, 1, -1,  1,  0, -1]
+-- fillRecursive :: Board -> Int -> (Int, Int) -> Int -> Board
+-- fillRecursive board start (x,y) last
+--     | start == last = newBoard
+--     | not (null (getPositionsOfAdjacentZeroNodes (head (filter (\i -> position i /= (x,y)) (cells board))) ))= Empty
+--     | otherwise = maybeBoard
+--     where
+--         dx = [0, 0,  1, 1,  1, -1, -1, -1]
+--         dy = [1, -1, 0, 1, -1,  1,  0, -1]
 
-        -- list resulting to add one Node to cellsList
-        cellsList = Node ( start) (x, y) : removeNodeByPosition (cells board) (x,y)
-        newBoard = Board cellsList (minNum board) last
+--         -- list resulting to add one Node to cellsList
+--         cellsList = Node ( start) (x, y) : removeNodeByPosition (cells board) (x,y)
+--         newBoard = Board cellsList (minNum board) last
 
-        newStart = start + 1
-        maybeBoard = recursiveCall 0
+--         newStart = start + 1
+--         maybeBoard = recursiveCall 0
 
-        recursiveCall index
-            | index == length dx = Empty
-            | not (inRange (newX, newY) cellsList) || value (nodeIndexer (newX, newY) cellsList)  /= 0 = recursiveCall (index+1)
-            | canDisconnect (cells newBoard) x y && connected(cells newBoard) newX newY < last - start = recursiveCall(index+1)
-            | solution /= Empty = solution
-            | otherwise = recursiveCall (index + 1)
-            where
-                (newX, newY) = (x + getElement dx index, y + getElement dy index )
-                solution = fillRecursive newBoard newStart (newX, newY) last
+--         recursiveCall index
+--             | index == length dx = Empty
+--             | not (inRange (newX, newY) cellsList) || value (nodeIndexer (newX, newY) cellsList)  /= 0 = recursiveCall (index+1)
+--             | canDisconnect (cells newBoard) x y && connected(cells newBoard) newX newY < last - start = recursiveCall(index+1)
+--             | solution /= Empty = solution
+--             | otherwise = recursiveCall (index + 1)
+--             where
+--                 (newX, newY) = (x + getElement dx index, y + getElement dy index )
+--                 solution = fillRecursive newBoard newStart (newX, newY) last
 
 connected :: [Node] -> Int -> Int -> Int
 connected board x y
