@@ -141,7 +141,7 @@ fillRecursive board start (x,y) last
 
 connected :: [Node] -> Int -> Int -> Int
 connected board x y
-    | nodeIndexer (x, y) board /= 0 = 0
+    | (value $ nodeIndexer (x, y) board) /= 0 = 0
     | otherwise = findFinalResult (Set.fromList[(x,y)])
     where
         findFinalResult :: Set (Int, Int) -> Int
@@ -180,20 +180,20 @@ canDisconnect board x y
         intercept nX nY = value (nodeIndexer(x, nY) board) /= 0 && value (nodeIndexer(nX, y) board) /= 0 && value (nodeIndexer(nX, nY) board) /= 0
         dx = [0, 0, 0,  1, 1,  1, -1, -1, -1]
         dy = [0, 1, -1, 0, 1, -1,  1,  0, -1]
-        zeros = filter (\x -> x==0) [nodeIndexer (x + getElement dx i, y+getElement dy i ) board | i <- [0..length dx-1], inRange (x+getElement dx i,y+getElement dy i) board]
+        zeros = filter (\x -> value x==0) [nodeIndexer (x + getElement dx i, y+getElement dy i ) board | i <- [0..length dx-1], inRange (x+getElement dx i,y+getElement dy i) board]
 
-        separatesC = ((not (inRange (up,y) board)) || nodeIndexer (up,y) board /= 0)  &&
-                     ((not (inRange (down,y) board)) || nodeIndexer (down,y) board /= 0) &&
-                     ((inRange (up,left) board && nodeIndexer (up,left) board == 0) ||
-                      (inRange (down,left) board && nodeIndexer (down,left) board == 0) || nodeIndexer (x,left) board == 0) &&
-                     ((inRange (up,right) board && nodeIndexer (up,right) board == 0) ||
-                      (inRange (down,right) board && nodeIndexer (down,right) board == 0) || nodeIndexer (x,right) board == 0)
-        separatesR = ((not (inRange (x,left) board)) || nodeIndexer (x,left) board /= 0) &&
-                     ((not (inRange (x,right) board)) ||  nodeIndexer (x,right) board /= 0) &&
-                    ((inRange (up,left) board  && nodeIndexer (up,left) board == 0 ) ||
-                     (inRange (up,right) board && nodeIndexer (up,right) board == 0) || nodeIndexer (up,y) board == 0) &&
-                    ((inRange (down, left) board && nodeIndexer (down,left) board == 0 ) ||
-                     (inRange (down, right) board && nodeIndexer (down,right) board == 0) || nodeIndexer (down,y) board == 0)
+        separatesC = ((not (inRange (up,y) board)) || (value $ nodeIndexer (up,y) board) /= 0)  &&
+                     ((not (inRange (down,y) board)) || (value $ nodeIndexer (down,y) board) /= 0) &&
+                     ((inRange (up,left) board && (value $ nodeIndexer (up,left) board) == 0) ||
+                      (inRange (down,left) board && (value $ nodeIndexer (down,left) board) == 0) || (value $ nodeIndexer (x,left) board) == 0) &&
+                     ((inRange (up,right) board && (value $ nodeIndexer (up,right) board) == 0) ||
+                      (inRange (down,right) board && (value $ nodeIndexer (down,right) board) == 0) || (value $ nodeIndexer (x,right) board) == 0)
+        separatesR = ((not (inRange (x,left) board)) || (value $ nodeIndexer (x,left) board) /= 0) &&
+                     ((not (inRange (x,right) board)) || (value $ nodeIndexer (x,right) board) /= 0) &&
+                    ((inRange (up,left) board  && (value $ nodeIndexer (up,left) board) == 0 ) ||
+                     (inRange (up,right) board && (value $ nodeIndexer (up,right) board) == 0) || (value $ nodeIndexer (up,y) board) == 0) &&
+                    ((inRange (down, left) board && (value $ nodeIndexer (down,left) board) == 0 ) ||
+                     (inRange (down, right) board && (value $ nodeIndexer (down,right) board) == 0) || (value $ nodeIndexer (down,y) board) == 0)
 
 
 inRange :: (Int, Int) -> [Node] -> Bool
