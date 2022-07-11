@@ -239,7 +239,7 @@ generateBoard a b = do
     let list = map(`mod` n) (randomList n (mkStdGen 1))
     let deleteList = sort (zip list filledList)
 
-    removeNum board deleteList round(maxNum board/2)
+    let generatedBoard = removeNum board deleteList round(maxNum board/2)
     -- printBoard generatedBoard
     return generatedBoard
 
