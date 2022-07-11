@@ -89,7 +89,7 @@ solve board = backtrack board numbersPutInBoard [] missingValues (length missing
 
 backtrack :: Board -> Node -> [Node] -> [Int] -> Int -> [Node] -> Board
 backtrack board node numbersPutInBoard missingValues totalMissingValues zeroNodes
-    | length numbersPutInBoard == totalMissingValues = Board numbersPutInBoard (minNum board) (maxNum board)
+    | length numbersPutInBoard == totalMissingValues = Board (getPrefixedNodes board ++ numbersPutInBoard) (minNum board) (maxNum board)
     | otherwise = maybeBoard
         where
         positions = getPositionsOfAdjacentZeroNodes node zeroNodes
@@ -117,15 +117,18 @@ sample = Board
     Node 5 (7,6), Node 0 (7,7)]
     1 40
 
+
 squareBoard :: Int -> Int -> Board
 squareBoard n m =
     Board {cells = [Node 0 ( i,  j) | i <- [1..n], j <- [1..n]], minNum = 1, maxNum = n*m}
+
 
 generateCoordinates :: [Node] -> Int -> Int -> [(Int, Int)]
 generateCoordinates nodes max min =
     [position node | (x, node) <- enumerate nodes,  value node < max, value node >= min ]
     where
         enumerate = zip [0..]
+
 
 getElement :: [a] -> Int -> a
 getElement list 1 = head list
@@ -238,43 +241,104 @@ removeNum board list n
         newCells = Node 0 pos : removeNodeByPosition (cells board) pos
         newBoard = Board newCells (minNum board) (maxNum board)
 
+
 randomList :: Int -> StdGen -> [Int]
 randomList n = take n . unfoldr (Just . random)
 
+
+generateNodesWithZeros :: Int -> Int -> [Node]
+generateNodesWithZeros rows columns = [Node 0 (x, y) | x <- [0..rows-1], y <- [0..columns-1]]
+
+
+generateRandomPosition :: Int -> Int -> (Int,Int) -> IO (Int, Int) 
+generateRandomPosition rows columns previousPoint = do
+    rowPosition <- randomRIO (0, rows-1)
+    columnPosition <- randomRIO (0, columns-1)
+    let position = (rowPosition, columnPosition)
+    if position == previousPoint
+        then generateRandomPosition rows columns previousPoint
+        else return position
+
+
+generateBoard :: Int -> Int -> Int -> Int -> IO Board
+generateBoard rows columns minValue maxValue = do 
+    minPosition <- generateRandomPosition rows columns (-1,-1)
+    maxPosition <- generateRandomPosition rows columns minPosition
+    -- minRowPosition <- randomRIO (0, rows-1)
+    -- minColumnPosition <- randomRIO (0, columns-1)
+    -- maxRowPosition <- randomRIO (0, rows-1)
+    -- maxColumnPosition <- randomRIO (0, columns-1)
+    let minNode = Node minValue minPosition
+    let maxNode = Node maxValue maxPosition
+    let zeroNodes = generateNodesWithZeros rows columns
+    let zeroNodesWithoutMin = removeNodeByPosition zeroNodes $ position minNode
+    let zeroNodesWithoutMax = removeNodeByPosition zeroNodesWithoutMin $ position maxNode
+    let cells = [minNode, maxNode] ++ zeroNodesWithoutMax
+    return (Board cells minValue maxValue)
+
+
+
+getSolvedGenerated :: Int -> Int -> Int -> Int -> IO Board
+getSolvedGenerated rows columns minValue maxValue = do
+    board <- generateBoard rows columns minValue maxValue
+    let solvedBoard = solve board
+    if solvedBoard == Empty 
+        then getSolvedGenerated rows columns minValue maxValue
+        else return solvedBoard
+
+
+printBoard :: IO Board -> IO ()
+printBoard board = do 
+    boardToPrint <- board
+    if boardToPrint == Empty then print Empty
+    else do
+        let sortedNodesByPosition = sortBy (\x y -> compare (position x) (position y)) (cells boardToPrint)
+        print $ map value sortedNodesByPosition
+
+
 -- generateBoard :: Int -> Int -> Maybe Board
-generateBoard a b = do
+-- generateBoard a b = do
 
-    -- randShape <- randomRIO (0,2)
-    let shapes = [squareBoard a b]
+--     -- randShape <- randomRIO (0,2)
+--     let shapes = [squareBoard a b]
 
-    --  change head shapes for indexing on shape
-    let selected = head shapes
+--     --  change head shapes for indexing on shape
+--     let selected = head shapes
 
-    let blankBoard = selected
+--     let blankBoard = selected
 
-    let blankCells = generateCoordinates (cells selected) 1 0
-    randIndex <- randomRIO (0,length blankCells -1)
-    secondRand <- randomRIO (0,length blankCells -1)
+--     let blankCells = generateCoordinates (cells selected) 1 0
+--     randIndex <- randomRIO (0,length blankCells -1)
+--     secondRand <- randomRIO (0,length blankCells -1)
 
-    let newCells = removeNodeByPosition (cells selected) (blankCells !! randIndex)
-    let newBoard = Board (Node 1 (blankCells !! randIndex) : newCells) (minNum selected) (maxNum selected)
+--     let newCells = removeNodeByPosition (cells selected) (blankCells !! randIndex)
+--     let newBoard = Board (Node 1 (blankCells !! randIndex) : newCells) (minNum selected) (maxNum selected)
 
-    let newCells2 = removeNodeByPosition (cells newBoard) (blankCells !! secondRand)
-    let max = length newCells2+1
-    let newBoard2 = Board (Node max (blankCells !! secondRand) : newCells) (minNum selected) (maxNum selected)
+--     let newCells2 = removeNodeByPosition (cells newBoard) (blankCells !! secondRand)
+--     let max = length newCells2+1
+--     let newBoard2 = Board (Node max (blankCells !! secondRand) : newCells) (minNum selected) (maxNum selected)
 
-    --- Fill the blank board
-    let board = solve newBoard2
+--     --- Fill the blank board
+--     let board = solve newBoard2
 
 
-    --- get the filled positions list
-    let filledList = generateCoordinates(cells board) (maxNum board) 2
-    let n = length filledList
+--     --- get the filled positions list
+--     let filledList = generateCoordinates(cells board) (maxNum board) 2
+--     let n = length filledList
 
-    let list = map(`mod` n) (randomList n (mkStdGen 1))
-    let deleteList = sort (zip list filledList)
-    let targetNum = maxNum board `div` 2
-    let generatedBoard = removeNum board deleteList targetNum
-    -- printBoard generatedBoard
-    return generatedBoard
+--     let list = map(`mod` n) (randomList n (mkStdGen 1))
+--     let deleteList = sort (zip list filledList)
+--     let targetNum = maxNum board `div` 2
+--     let generatedBoard = removeNum board deleteList targetNum
+--     -- printBoard generatedBoard
+--     return generatedBoard
+
+
+
+
+
+
+
+
+
 
