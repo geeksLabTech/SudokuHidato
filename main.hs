@@ -1,7 +1,7 @@
 import Data.List (sortBy, sort, find)
 import Control.Monad
 import System.Random
-import Text.XHtml (shape, selected)
+
 
 data Board = Board {
     cells :: [Node],
