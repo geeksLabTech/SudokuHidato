@@ -213,7 +213,7 @@ removeNum board list n
 randomList :: Int -> StdGen -> [Int]
 randomList n = take n . unfoldr (Just . random)
 
-generateBoard :: Int -> Int -> Board
+-- generateBoard :: Int -> Int -> Maybe Board
 generateBoard a b = do
 
     -- randShape <- randomRIO (0,2)
@@ -225,11 +225,12 @@ generateBoard a b = do
     let blankBoard = selected
 
     let blankCells = generateCoordinates (cells selected) 1 0
-    let randIndex = randomRIO(0,length blankCells -1)
+    randIndex <- randomRIO (0,length blankCells -1)
+    secondRand <- randomRIO (0,length blankCells -1)
     -- let start = getElement blankCells randIndex
 
     --- Fill the blank board
-    let board = fill selected randIndex
+    let board = fill selected (randIndex,secondRand)
 
 
     --- get the filled positions list
@@ -238,8 +239,8 @@ generateBoard a b = do
 
     let list = map(`mod` n) (randomList n (mkStdGen 1))
     let deleteList = sort (zip list filledList)
-
-    let generatedBoard = removeNum board deleteList round(maxNum board/2)
+    let targetNum = maxNum board `div` 2
+    let generatedBoard = removeNum board deleteList targetNum
     -- printBoard generatedBoard
     return generatedBoard
 
