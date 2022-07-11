@@ -253,10 +253,16 @@ generateBoard a b = do
     let blankCells = generateCoordinates (cells selected) 1 0
     randIndex <- randomRIO (0,length blankCells -1)
     secondRand <- randomRIO (0,length blankCells -1)
-    -- let start = getElement blankCells randIndex
+
+    let newCells = removeNodeByPosition (cells selected) (blankCells !! randIndex)
+    let newBoard = Board (Node 1 (blankCells !! randIndex) : newCells) (minNum selected) (maxNum selected)
+
+    let newCells2 = removeNodeByPosition (cells newBoard) (blankCells !! secondRand)
+    let max = length newCells2+1
+    let newBoard2 = Board (Node max (blankCells !! secondRand) : newCells) (minNum selected) (maxNum selected)
 
     --- Fill the blank board
-    let board = fill selected (randIndex,secondRand)
+    let board = solve newBoard2
 
 
     --- get the filled positions list
