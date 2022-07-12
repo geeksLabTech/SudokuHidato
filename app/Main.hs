@@ -303,8 +303,32 @@ removeRandomPositionFromSolvedBoard rows columns nodes removedPoints numberOfPoi
         then return finalNodes
         else removeRandomPositionFromSolvedBoard rows columns finalNodes (randomPoint : removedPoints) (numberOfPointsToRemove-1)
 
-printNodes :: [Node] -> Int -> IO ()
-printNodes nodes idx
+getLength :: Int -> Int
+getLength x 
+    | x < 10 = 1
+    | otherwise = getLength (x `div` 10) + 1 
+
+generateString :: Int -> String
+generateString count 
+    | count == 0 = ""
+    | count == 1 = " "
+    | otherwise = do
+        " " ++ generateString (count - 1)
+
+
+formatVal :: Int -> Int -> String
+formatVal val max = do
+    let len = getLength max 
+    let curLen = getLength val
+
+    if curLen == len then do show val
+    else do
+        let spaces = generateString (len - curLen)
+        spaces ++ show val
+
+
+printNodes :: [Node] -> Int -> Int -> IO ()
+printNodes nodes idx max
     | idx < length nodes = do
         let node = nodes !! idx
         -- get second component of a tuple
@@ -313,9 +337,10 @@ printNodes nodes idx
             putStr "\n"
             else do
                 putStr " "
-        let val = show (value node)
-        putStr val
-        printNodes nodes (idx+1)
+        let val = (value node)
+        let newVal = formatVal val max
+        putStr newVal
+        printNodes nodes (idx+1) max
     | otherwise = do
         putStr " "
 
@@ -325,7 +350,8 @@ printBoard board = do
     if boardToPrint == Empty then print Empty
     else do
         let sortedNodesByPosition = sortBy (\x y -> compare (position x) (position y)) (cells boardToPrint)
-        printNodes sortedNodesByPosition 0
+        let max = maxNum board
+        printNodes sortedNodesByPosition 0 max
         putStr "\n"
 
 
