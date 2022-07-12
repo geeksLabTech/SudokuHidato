@@ -46,6 +46,10 @@ getZeroNodes Empty = []
 getZeroNodes (Board cells _ _) = filter isZero cells where
     isZero x = value x == 0
 
+getZeroNodes' :: [Node] -> [Node]
+getZeroNodes' [] = []
+getZeroNodes' cells = filter isZero cells where
+    isZero x = value x == 0
 
 removeNodeByPosition :: [Node] -> (Int,Int) -> [Node]
 removeNodeByPosition [] _ = []
@@ -133,6 +137,7 @@ generateCoordinates nodes max min =
 getElement :: [a] -> Int -> a
 getElement list 1 = head list
 getElement list n = getElement (tail list) (n-1)
+
 
 nodeIndexer :: (Int, Int) -> [Node] -> Node
 nodeIndexer (x, y) board =
@@ -231,6 +236,7 @@ inRange :: (Int, Int) -> [Node] -> Bool
 inRange (x, y) board =
     x >= 0 && x < length board && y >= 0 && y < length board
 
+
 removeNum :: Board -> [(Int, (Int, Int))] -> Int -> Board
 removeNum board list n
     | n == 0 = board
@@ -250,20 +256,20 @@ generateNodesWithZeros :: Int -> Int -> [Node]
 generateNodesWithZeros rows columns = [Node 0 (x, y) | x <- [0..rows-1], y <- [0..columns-1]]
 
 
-generateRandomPosition :: Int -> Int -> (Int,Int) -> IO (Int, Int) 
-generateRandomPosition rows columns previousPoint = do
+generateRandomPosition :: Int -> Int -> [(Int,Int)] -> IO (Int, Int) 
+generateRandomPosition rows columns previousPoints = do
     rowPosition <- randomRIO (0, rows-1)
     columnPosition <- randomRIO (0, columns-1)
     let position = (rowPosition, columnPosition)
-    if position == previousPoint
-        then generateRandomPosition rows columns previousPoint
+    if position `elem` previousPoints
+        then generateRandomPosition rows columns previousPoints
         else return position
 
 
 generateBoard :: Int -> Int -> Int -> Int -> IO Board
 generateBoard rows columns minValue maxValue = do 
-    minPosition <- generateRandomPosition rows columns (-1,-1)
-    maxPosition <- generateRandomPosition rows columns minPosition
+    minPosition <- generateRandomPosition rows columns [(-1,-1)]
+    maxPosition <- generateRandomPosition rows columns [minPosition]
     -- minRowPosition <- randomRIO (0, rows-1)
     -- minColumnPosition <- randomRIO (0, columns-1)
     -- maxRowPosition <- randomRIO (0, rows-1)
@@ -273,18 +279,29 @@ generateBoard rows columns minValue maxValue = do
     let zeroNodes = generateNodesWithZeros rows columns
     let zeroNodesWithoutMin = removeNodeByPosition zeroNodes $ position minNode
     let zeroNodesWithoutMax = removeNodeByPosition zeroNodesWithoutMin $ position maxNode
-    let cells = [minNode, maxNode] ++ zeroNodesWithoutMax
-    return (Board cells minValue maxValue)
+    let initialNodes = [minNode, maxNode] ++ zeroNodesWithoutMax
+    solvedBoard <- getSolvedGenerated (Board initialNodes minValue maxValue)
+    readyNodes <- removeRandomPositionFromSolvedBoard rows columns (cells solvedBoard) [minPosition, maxPosition] $ (length (cells solvedBoard) `div` 2) - 1
+    return (Board readyNodes minValue maxValue)
 
 
 
-getSolvedGenerated :: Int -> Int -> Int -> Int -> IO Board
-getSolvedGenerated rows columns minValue maxValue = do
-    board <- generateBoard rows columns minValue maxValue
-    let solvedBoard = solve board
+getSolvedGenerated :: Board -> IO Board
+getSolvedGenerated initialBoard = do
+    let solvedBoard = solve initialBoard
     if solvedBoard == Empty 
-        then getSolvedGenerated rows columns minValue maxValue
+        then getSolvedGenerated initialBoard
         else return solvedBoard
+
+
+removeRandomPositionFromSolvedBoard :: Int -> Int -> [Node] -> [(Int,Int)] -> Int -> IO [Node]
+removeRandomPositionFromSolvedBoard rows columns nodes removedPoints numberOfPointsToRemove = do 
+    randomPoint <- generateRandomPosition rows columns removedPoints
+    let newNodes = removeNodeByPosition nodes randomPoint
+    let finalNodes = Node 0 randomPoint : newNodes
+    if numberOfPointsToRemove == 0
+        then return finalNodes
+        else removeRandomPositionFromSolvedBoard rows columns finalNodes (randomPoint : removedPoints) (numberOfPointsToRemove-1)
 
 
 printBoard :: IO Board -> IO ()

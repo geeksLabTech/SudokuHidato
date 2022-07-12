@@ -42,12 +42,12 @@ getBinDir, getLibDir, getDynLibDir, getDataDir, getLibexecDir, getSysconfDir :: 
 
 
 bindir, libdir, dynlibdir, datadir, libexecdir, sysconfdir :: FilePath
-bindir     = "/home/joramas/.cabal/bin"
-libdir     = "/home/joramas/.cabal/lib/x86_64-linux-ghc-8.10.7/Sudoku-0.1.0.0-inplace-Sudoku"
-dynlibdir  = "/home/joramas/.cabal/lib/x86_64-linux-ghc-8.10.7"
-datadir    = "/home/joramas/.cabal/share/x86_64-linux-ghc-8.10.7/Sudoku-0.1.0.0"
-libexecdir = "/home/joramas/.cabal/libexec/x86_64-linux-ghc-8.10.7/Sudoku-0.1.0.0"
-sysconfdir = "/home/joramas/.cabal/etc"
+bindir     = "/home/daniel/.cabal/bin"
+libdir     = "/home/daniel/.cabal/lib/x86_64-linux-ghc-8.10.7/Sudoku-0.1.0.0-inplace-Sudoku"
+dynlibdir  = "/home/daniel/.cabal/lib/x86_64-linux-ghc-8.10.7"
+datadir    = "/home/daniel/.cabal/share/x86_64-linux-ghc-8.10.7/Sudoku-0.1.0.0"
+libexecdir = "/home/daniel/.cabal/libexec/x86_64-linux-ghc-8.10.7/Sudoku-0.1.0.0"
+sysconfdir = "/home/daniel/.cabal/etc"
 
 getBinDir     = catchIO (getEnv "Sudoku_bindir")     (\_ -> return bindir)
 getLibDir     = catchIO (getEnv "Sudoku_libdir")     (\_ -> return libdir)
