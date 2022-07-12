@@ -303,14 +303,30 @@ removeRandomPositionFromSolvedBoard rows columns nodes removedPoints numberOfPoi
         then return finalNodes
         else removeRandomPositionFromSolvedBoard rows columns finalNodes (randomPoint : removedPoints) (numberOfPointsToRemove-1)
 
+printNodes :: [Node] -> Int -> IO ()
+printNodes nodes idx
+    | idx < length nodes = do
+        let node = nodes !! idx
+        -- get second component of a tuple
+        let (x, y) = position node
+        if y == 0 then do
+            putStr "\n"
+            else do
+                putStr " "
+        let val = show (value node)
+        putStr val
+        printNodes nodes (idx+1)
+    | otherwise = do
+        putStr " "
 
-printBoard :: IO Board -> IO ()
-printBoard board = do 
-    boardToPrint <- board
+printBoard :: Board -> IO ()
+printBoard board = do
+    let boardToPrint = board
     if boardToPrint == Empty then print Empty
     else do
         let sortedNodesByPosition = sortBy (\x y -> compare (position x) (position y)) (cells boardToPrint)
-        print $ map value sortedNodesByPosition
+        printNodes sortedNodesByPosition 0
+        putStr "\n"
 
 
 -- generateBoard :: Int -> Int -> Maybe Board
