@@ -150,113 +150,83 @@ nodeIndexer :: (Int, Int) -> [Node] -> Node
 nodeIndexer (x, y) board =
     head (filter (\i -> position i /= (x,y)) board)
 
--- fill :: Board -> (Int, Int) -> Board
--- fill board pos = newBoard where
---     start = minNum board
---     end = length (getZeroNodes board)
---     newBoard = fillRecursive board start pos end
 
--- fillRecursive :: Board -> Int -> (Int, Int) -> Int -> Board
--- fillRecursive board start (x,y) last
---     | start == last = newBoard
---     | not (null (getPositionsOfAdjacentZeroNodes (head (filter (\i -> position i /= (x,y)) (cells board))) ))= Empty
---     | otherwise = maybeBoard
+
+-- connected :: [Node] -> Int -> Int -> Int
+-- connected board x y
+--     | value (nodeIndexer (x, y) board) /= 0 = 0
+--     | otherwise = findFinalResult (Set.fromList[(x,y)])
 --     where
---         dx = [0, 0,  1, 1,  1, -1, -1, -1]
---         dy = [1, -1, 0, 1, -1,  1,  0, -1]
-
---         -- list resulting to add one Node to cellsList
---         cellsList = Node ( start) (x, y) : removeNodeByPosition (cells board) (x,y)
---         newBoard = Board cellsList (minNum board) last
-
---         newStart = start + 1
---         maybeBoard = recursiveCall 0
-
---         recursiveCall index
---             | index == length dx = Empty
---             | not (inRange (newX, newY) cellsList) || value (nodeIndexer (newX, newY) cellsList)  /= 0 = recursiveCall (index+1)
---             | canDisconnect (cells newBoard) x y && connected(cells newBoard) newX newY < last - start = recursiveCall(index+1)
---             | solution /= Empty = solution
---             | otherwise = recursiveCall (index + 1)
+--         findFinalResult :: Set (Int, Int) -> Int
+--         findFinalResult zeros
+--             | zeros == nZeros = Set.size nZeros
+--             | otherwise = findFinalResult nZeros
 --             where
---                 (newX, newY) = (x + getElement dx index, y + getElement dy index )
---                 solution = fillRecursive newBoard newStart (newX, newY) last
-
-connected :: [Node] -> Int -> Int -> Int
-connected board x y
-    | value (nodeIndexer (x, y) board) /= 0 = 0
-    | otherwise = findFinalResult (Set.fromList[(x,y)])
-    where
-        findFinalResult :: Set (Int, Int) -> Int
-        findFinalResult zeros
-            | zeros == nZeros = Set.size nZeros
-            | otherwise = findFinalResult nZeros
-            where
-                nZeros = neighbors zeros
-                neighbors :: Set (Int, Int) -> Set (Int, Int)
-                neighbors zeros
-                    | Set.size zeros == 0 = Set.empty
-                    | otherwise = Set.union nZeros (neighbors popZeros)
-                    where
-                        dx = [0, 0, 0,  1, 1,  1, -1, -1, -1]
-                        dy = [0, 1, -1, 0, 1, -1,  1,  0, -1]
-                        (x, y) = Set.findMin zeros
-                        popZeros = Set.deleteMin zeros
-                        nZeros = Set.fromList [(x+getElement dx i,y+ getElement dy i) | i <- [0..(length dx)-1], inRange (x+getElement dx i, y+getElement dy i) board, value (nodeIndexer ((x+getElement dx i), (y+getElement dy i)) board) == 0]
+--                 nZeros = neighbors zeros
+--                 neighbors :: Set (Int, Int) -> Set (Int, Int)
+--                 neighbors zeros
+--                     | Set.size zeros == 0 = Set.empty
+--                     | otherwise = Set.union nZeros (neighbors popZeros)
+--                     where
+--                         dx = [0, 0, 0,  1, 1,  1, -1, -1, -1]
+--                         dy = [0, 1, -1, 0, 1, -1,  1,  0, -1]
+--                         (x, y) = Set.findMin zeros
+--                         popZeros = Set.deleteMin zeros
+--                         nZeros = Set.fromList [(x+getElement dx i,y+ getElement dy i) | i <- [0..(length dx)-1], inRange (x+getElement dx i, y+getElement dy i) board, value (nodeIndexer ((x+getElement dx i), (y+getElement dy i)) board) == 0]
 
 
-canDisconnect :: [Node] -> Int -> Int -> Bool
-canDisconnect board x y
-    | length zeros <= 1 = False
-    | inRange(up, y) board && inRange(x, right) board && inRange(up, right) board && intercept up right = True
-    | inRange(up, y) board && inRange(x, left) board && inRange(up, left) board && intercept up left = True
-    | inRange(down, y) board && inRange(x, right) board && inRange(down, right) board && intercept down right = True
-    | inRange(down, y) board && inRange(x, left) board && inRange(down, left) board && intercept down left = True
-    | inRange(x, right) board && inRange(x, left) board && separatesC = True
-    | inRange(down, y) board && inRange(up, y) board && separatesR = True
-    | otherwise = False
-    where
-        up = x-1
-        down = x+1
-        left = y-1
-        right = y+1
-        intercept nX nY = value (nodeIndexer(x, nY) board) /= 0 && value (nodeIndexer(nX, y) board) /= 0 && value (nodeIndexer(nX, nY) board) /= 0
-        dx = [0, 0, 0,  1, 1,  1, -1, -1, -1]
-        dy = [0, 1, -1, 0, 1, -1,  1,  0, -1]
-        zeros = filter (\x -> value x==0) [nodeIndexer (x + getElement dx i, y+getElement dy i ) board | i <- [0..length dx-1], inRange (x+getElement dx i,y+getElement dy i) board]
+-- canDisconnect :: [Node] -> Int -> Int -> Bool
+-- canDisconnect board x y
+--     | length zeros <= 1 = False
+--     | inRange(up, y) board && inRange(x, right) board && inRange(up, right) board && intercept up right = True
+--     | inRange(up, y) board && inRange(x, left) board && inRange(up, left) board && intercept up left = True
+--     | inRange(down, y) board && inRange(x, right) board && inRange(down, right) board && intercept down right = True
+--     | inRange(down, y) board && inRange(x, left) board && inRange(down, left) board && intercept down left = True
+--     | inRange(x, right) board && inRange(x, left) board && separatesC = True
+--     | inRange(down, y) board && inRange(up, y) board && separatesR = True
+--     | otherwise = False
+--     where
+--         up = x-1
+--         down = x+1
+--         left = y-1
+--         right = y+1
+--         intercept nX nY = value (nodeIndexer(x, nY) board) /= 0 && value (nodeIndexer(nX, y) board) /= 0 && value (nodeIndexer(nX, nY) board) /= 0
+--         dx = [0, 0, 0,  1, 1,  1, -1, -1, -1]
+--         dy = [0, 1, -1, 0, 1, -1,  1,  0, -1]
+--         zeros = filter (\x -> value x==0) [nodeIndexer (x + getElement dx i, y+getElement dy i ) board | i <- [0..length dx-1], inRange (x+getElement dx i,y+getElement dy i) board]
 
-        separatesC = (not (inRange (up,y) board) || value (nodeIndexer (up,y) board) /= 0)  &&
-                     (not (inRange (down,y) board) || value (nodeIndexer (down,y) board) /= 0) &&
-                     ((inRange (up,left) board && value (nodeIndexer (up,left) board) == 0) ||
-                      (inRange (down,left) board && value (nodeIndexer (down,left) board) == 0) || value (nodeIndexer (x,left) board) == 0) &&
-                     ((inRange (up,right) board && value (nodeIndexer (up,right) board) == 0) ||
-                      (inRange (down,right) board && value (nodeIndexer (down,right) board) == 0) || value (nodeIndexer (x,right) board) == 0)
-        separatesR = (not (inRange (x,left) board) || value (nodeIndexer (x,left) board) /= 0) &&
-                     (not (inRange (x,right) board) || value (nodeIndexer (x,right) board) /= 0) &&
-                    ((inRange (up,left) board  && value (nodeIndexer (up,left) board) == 0 ) ||
-                     (inRange (up,right) board && value (nodeIndexer (up,right) board) == 0) || value (nodeIndexer (up,y) board) == 0) &&
-                    ((inRange (down, left) board && value (nodeIndexer (down,left) board) == 0 ) ||
-                     (inRange (down, right) board && value (nodeIndexer (down,right) board) == 0) || value (nodeIndexer (down,y) board) == 0)
-
-
-inRange :: (Int, Int) -> [Node] -> Bool
-inRange (x, y) board =
-    x >= 0 && x < length board && y >= 0 && y < length board
+--         separatesC = (not (inRange (up,y) board) || value (nodeIndexer (up,y) board) /= 0)  &&
+--                      (not (inRange (down,y) board) || value (nodeIndexer (down,y) board) /= 0) &&
+--                      ((inRange (up,left) board && value (nodeIndexer (up,left) board) == 0) ||
+--                       (inRange (down,left) board && value (nodeIndexer (down,left) board) == 0) || value (nodeIndexer (x,left) board) == 0) &&
+--                      ((inRange (up,right) board && value (nodeIndexer (up,right) board) == 0) ||
+--                       (inRange (down,right) board && value (nodeIndexer (down,right) board) == 0) || value (nodeIndexer (x,right) board) == 0)
+--         separatesR = (not (inRange (x,left) board) || value (nodeIndexer (x,left) board) /= 0) &&
+--                      (not (inRange (x,right) board) || value (nodeIndexer (x,right) board) /= 0) &&
+--                     ((inRange (up,left) board  && value (nodeIndexer (up,left) board) == 0 ) ||
+--                      (inRange (up,right) board && value (nodeIndexer (up,right) board) == 0) || value (nodeIndexer (up,y) board) == 0) &&
+--                     ((inRange (down, left) board && value (nodeIndexer (down,left) board) == 0 ) ||
+--                      (inRange (down, right) board && value (nodeIndexer (down,right) board) == 0) || value (nodeIndexer (down,y) board) == 0)
 
 
-removeNum :: Board -> [(Int, (Int, Int))] -> Int -> Board
-removeNum board list n
-    | n == 0 = board
-    | otherwise = removeNum newBoard rest (n-1)
-    where
-        (init:rest) = list
-        (index,pos) = init
-        newCells = Node 0 pos : removeNodeByPosition (cells board) pos
-        newBoard = Board newCells (minNum board) (maxNum board)
+-- inRange :: (Int, Int) -> [Node] -> Bool
+-- inRange (x, y) board =
+--     x >= 0 && x < length board && y >= 0 && y < length board
 
 
-randomList :: Int -> StdGen -> [Int]
-randomList n = take n . unfoldr (Just . random)
+-- removeNum :: Board -> [(Int, (Int, Int))] -> Int -> Board
+-- removeNum board list n
+--     | n == 0 = board
+--     | otherwise = removeNum newBoard rest (n-1)
+--     where
+--         (init:rest) = list
+--         (index,pos) = init
+--         newCells = Node 0 pos : removeNodeByPosition (cells board) pos
+--         newBoard = Board newCells (minNum board) (maxNum board)
+
+
+-- randomList :: Int -> StdGen -> [Int]
+-- randomList n = take n . unfoldr (Just . random)
 
 
 generateNodesWithZeros :: Int -> Int -> [Node]
@@ -277,10 +247,6 @@ generateBoard :: Int -> Int -> Int -> Int -> IO Board
 generateBoard rows columns minValue maxValue = do 
     minPosition <- generateRandomPosition rows columns [(-1,-1)]
     maxPosition <- generateRandomPosition rows columns [minPosition]
-    -- minRowPosition <- randomRIO (0, rows-1)
-    -- minColumnPosition <- randomRIO (0, columns-1)
-    -- maxRowPosition <- randomRIO (0, rows-1)
-    -- maxColumnPosition <- randomRIO (0, columns-1)
     let minNode = Node minValue minPosition
     let maxNode = Node maxValue maxPosition
     let zeroNodes = generateNodesWithZeros rows columns
@@ -366,42 +332,7 @@ printBoard board = do
         putStr "\n"
 
 
--- generateBoard :: Int -> Int -> Maybe Board
--- generateBoard a b = do
 
---     -- randShape <- randomRIO (0,2)
---     let shapes = [squareBoard a b]
-
---     --  change head shapes for indexing on shape
---     let selected = head shapes
-
---     let blankBoard = selected
-
---     let blankCells = generateCoordinates (cells selected) 1 0
---     randIndex <- randomRIO (0,length blankCells -1)
---     secondRand <- randomRIO (0,length blankCells -1)
-
---     let newCells = removeNodeByPosition (cells selected) (blankCells !! randIndex)
---     let newBoard = Board (Node 1 (blankCells !! randIndex) : newCells) (minNum selected) (maxNum selected)
-
---     let newCells2 = removeNodeByPosition (cells newBoard) (blankCells !! secondRand)
---     let max = length newCells2+1
---     let newBoard2 = Board (Node max (blankCells !! secondRand) : newCells) (minNum selected) (maxNum selected)
-
---     --- Fill the blank board
---     let board = solve newBoard2
-
-
---     --- get the filled positions list
---     let filledList = generateCoordinates(cells board) (maxNum board) 2
---     let n = length filledList
-
---     let list = map(`mod` n) (randomList n (mkStdGen 1))
---     let deleteList = sort (zip list filledList)
---     let targetNum = maxNum board `div` 2
---     let generatedBoard = removeNum board deleteList targetNum
---     -- printBoard generatedBoard
---     return generatedBoard
 
 
 
