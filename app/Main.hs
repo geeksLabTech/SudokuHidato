@@ -93,7 +93,7 @@ solve board = backtrack board numbersPutInBoard [] missingValues (length missing
 
 backtrack :: Board -> Node -> [Node] -> [Int] -> Int -> [Node] -> Board
 backtrack board node numbersPutInBoard missingValues totalMissingValues zeroNodes
-    | length numbersPutInBoard == totalMissingValues = Board (getPrefixedNodes board ++ numbersPutInBoard) (minNum board) (maxNum board)
+    | length numbersPutInBoard == totalMissingValues = getBoardIfSolved board node numbersPutInBoard
     | otherwise = maybeBoard
         where
         positions = getPositionsOfAdjacentZeroNodes node zeroNodes
@@ -109,6 +109,13 @@ backtrack board node numbersPutInBoard missingValues totalMissingValues zeroNode
             sucessorNode = getSucessorNodeIfAdjacent node $ getSucessorNode board node
             callInSucessorNode sucessor = backtrack board sucessor numbersPutInBoard missingValues totalMissingValues zeroNodes
 
+
+getBoardIfSolved :: Board -> Node -> [Node] -> Board
+getBoardIfSolved board node numbersPutInBoard
+    | null adjacent = Empty
+    | otherwise = Board (getPrefixedNodes board ++ numbersPutInBoard) (minNum board) (maxNum board)
+    where 
+        adjacent = getSucessorNodeIfAdjacent node $ getSucessorNode board node
 
 sample = Board
     [Node 0 (0,0), Node 33 (0,1), Node 35 (0,2),  Node 0 (0,3),  Node 0 (0,4),
