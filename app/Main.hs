@@ -125,7 +125,7 @@ sample = Board
     Node 27 (4,0),  Node 0 (4,1),  Node 0 (4,2),  Node 0 (4,3),  Node 9 (4,4),  Node 0 (4,5), Node 1 (4,6), -- 4
     Node 0 (5,2),  Node 0 (5,3), Node 18 (5,4),  Node 0 (5,5), Node 0 (5,6),
     Node 0 (6,4),  Node 7 (6,5), Node 0 (6,6), Node 0 (6,7),
-    Node 5 (7,6), Node 0 (7,7)]
+    Node 5 (7,6), Node 0 (7,7), Node (-1) (0, 5)]
     1 40
 
 
@@ -325,13 +325,17 @@ generateString count
 
 formatVal :: Int -> Int -> String
 formatVal val max = do
-    let len = getLength max 
-    let curLen = getLength val
-
-    if curLen == len then do show val
+    if val < 0 then do
+        let spaces = generateString 0
+        spaces
     else do
-        let spaces = generateString (len - curLen)
-        spaces ++ show val
+        let len = getLength max
+        let curLen = getLength val
+
+        if curLen == len then do show val
+        else do
+            let spaces = generateString (len - curLen)
+            spaces ++ show val
 
 
 printNodes :: [Node] -> Int -> Int -> IO ()
