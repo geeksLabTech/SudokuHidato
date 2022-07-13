@@ -85,8 +85,8 @@ getSucessorNodeIfAdjacent node target
 
 
 solve :: Board -> Board
-solve board = backtrack board numbersPutInBoard [] missingValues (length missingValues) (getZeroNodes board) where
-    numbersPutInBoard = head $ sortPrefixedNodes board
+solve board = backtrack board currentNode [] missingValues (length missingValues) (getZeroNodes board) where
+    currentNode = head $ sortPrefixedNodes board
     missingValues = calculateMissingValues board
 
 
