@@ -33,18 +33,18 @@ Para la solución de un tablero se optó por un algoritmo de backtracking, cuyo 
 En cada llamado recursivo se tiene Positions que será una lista con las posiciones de todas las casillas vacías adyacentes a la casilla actual, esta lista se le pasa a la función recursiveCall. 
 
 Dicha función revisa que si el sucesor del valor del nodo actual es uno de los nodos prefijados en el tablero, y, de serlo, revisa si es adyacente al nodo actual.
-Si el sucesor está y es adyacente, se salta a este nodo y se continúa a partir de este nodo.
+Si el sucesor está y es adyacente, se salta a este nodo y se hace un llamado recursivo en dicho nodo.
+Una vez se coloca un nodo válido, se elimina de la lista de celdas vacías.
 Si no es valida la solución que se está construyendo, se elimina el último elemento de la lista y se continúa ejecutando recursiveCall
 Se van probando todas las posiciones en cada uno de los adyacentes vacíios al nodo actual en caso de que su sucesor no esté en el tablero
 
-Finalmente se retorna el tablero con las posiciones llenas
+Finalmente se retorna el tablero con las posiciones llenas o, en caso de que no hayan posiciones que lleven a un tablero válido, retorna Empty
 
 ## Generando Tableros
 
 El generador de tableros implementado genera tableros rectangulares, recibiendo la cantidad de filas y columnas, el mínimo valor y el máximo, ambos a ser prefijados en el tablero a generar.
 
 Inicialmente crea los nodos inicial y final, creando aleatoriamente las posiciones de dichos nodos.
-
 Luego genera un tablero rectangular completamente vacío, sustituye los nodos anteriormente creados por los vacíos en el tablero.
 Una vez hecho esto, llena el tablero vacío con una solución válida, a dicho tablero se le eliminan los valores de la mitad -1 de los nodos
 de forma tal que se garantice la unicidad de la solución y se retorna dicho tablero.
